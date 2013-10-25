@@ -14,3 +14,7 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+
+# Ignore JS environment variable
+/app/assets/javascripts/env_variables.js
+

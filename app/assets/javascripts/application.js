@@ -12,5 +12,9 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require turbolinks
-//= require_tree .
+//= require underscore
+//= require backbone
+//= require env_variables
+//= require script2
+//= require qunit-1.12.0
+//= require tests

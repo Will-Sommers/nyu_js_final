@@ -1,19 +1,16 @@
 'use strict'
 
-https://api.github.com/repos/afeld/advanced_js/git/trees/9124a0554e735a6?recursive=1
-
 var API_BASE = "https://api.github.com/repos/";
-
 var recursiveTreeLookup = function(repoLocation) {
   var repoLocation = repoLocation;
   var commitAPIPath = getAllCommits(repoLocation);
-  var commits = $.getJSON(commitAPIPath);
+  var commits = $.getJSON(commitAPIPath + "?access_token=" + API_TOKEN);
 
 
   var tree = commits.then(function(data) {
     var mostRecentCommit = data[0].sha;
     var treeAPIPath = API_BASE + repoLocation +
-      "/git/trees/" + mostRecentCommit + "?recursive=1";
+      "/git/trees/" + mostRecentCommit + "?access_token=" + API_TOKEN + "&recursive=1";
     return  $.getJSON(treeAPIPath);
   });
 
@@ -35,7 +32,8 @@ var recursiveTreeLookup = function(repoLocation) {
 };
 
 var getFileContent = function(fileLocation) {
-  $.get(fileLocation, function() {
+  $.get(fileLocation + "?access_token=" + API_TOKEN,
+    function() {
     console.log('started');
   }).done(function(data) {
     console.log(data);
@@ -63,7 +61,12 @@ var checkForJSFileType = function(path) {
 }
 
 
-var a = $.getJSON("https://raw.github.com/afeld/advanced_js/master/vendor/underscore.js", { Origin: 'www.google.com' } );
+//var a = $.getJSON("https://api.github.com/repos/afeld/advanced_js/contents/vendor/recipes.js",
+//    { Origin: 'http://localhost:3000/',
+//      user: 'will-sommers' }
+//);
 
-a.then( function(data) { console.log(data) } );
-// recursiveTreeLookup('afeld/advanced_js');
+//a.then( function(data) { console.log(data.content) } );
+
+
+recursiveTreeLookup('afeld/advanced_js');
