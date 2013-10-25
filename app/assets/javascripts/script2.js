@@ -1,16 +1,83 @@
-'use strict'
-
+// Globals
+// Look in env_variables for API tokens etc.
 var API_BASE = "https://api.github.com/repos/";
-var recursiveTreeLookup = function(repoLocation) {
+var AUTH = "?access_token=" + API_TOKEN;
+
+var app = app || {};
+
+
+(function($) {
+
+  "use strict"
+
+
+  app.AppView = Backbone.View.extend({
+
+    el: '.main',
+
+    events: {
+      "keypress .repo-name" : "findRepo"
+    },
+
+
+    initialize: function() {
+
+    },
+
+    render: function() {
+
+    },
+
+    findRepo: function(e) {
+      if (e.which === 13) {
+        var repoName = ($('.repo-name').val())
+        module.recursiveTreeLookup(repoName);
+      }
+    }
+  });
+
+})(jQuery);
+
+(function() {
+  'use strict'
+
+  app.JsFile = Backbone.Model.extend({
+
+  });
+});
+
+(function() {
+  'use strict'
+
+  var JsFiles = Backbone.Collection.extend({
+
+    model: app.JsFile
+  });
+
+  app.jsFiles = new JsFiles();
+})();
+
+
+$(function () {
+
+  'use strict'
+
+  new app.AppView()
+
+});
+
+var module = {}
+
+module.recursiveTreeLookup = function(repoLocation) {
   var repoLocation = repoLocation;
-  var commitAPIPath = getAllCommits(repoLocation);
-  var commits = $.getJSON(commitAPIPath + "?access_token=" + API_TOKEN);
+  var commitAPIPath = module.getAllCommits(repoLocation);
+  var commits = $.getJSON(commitAPIPath);
 
 
   var tree = commits.then(function(data) {
     var mostRecentCommit = data[0].sha;
     var treeAPIPath = API_BASE + repoLocation +
-      "/git/trees/" + mostRecentCommit + "?access_token=" + API_TOKEN + "&recursive=1";
+      "/git/trees/" + mostRecentCommit + AUTH + "&recursive=1";
     return  $.getJSON(treeAPIPath);
   });
 
@@ -19,29 +86,30 @@ var recursiveTreeLookup = function(repoLocation) {
     var repoFile;
     for (var i = 0; i < data.tree.length; i++) {
       repoFile = data.tree[i];
-      if(checkForJSFileType(repoFile.path)) {
+      if(module.checkForJSFileType(repoFile.path)) {
         arr.push(repoFile)
       }
     }
-    var fileNames = filePathNames(repoLocation, arr)
+    var fileNames = module.filePathNames(repoLocation, arr)
 
     for (var i = 0; i < 3; i++) {
-      getFileContent(fileNames[i]);
+      module.getFileContent(fileNames[i]);
     }
   });
 };
 
-var getFileContent = function(fileLocation) {
-  $.get(fileLocation + "?access_token=" + API_TOKEN,
-    function() {
-    console.log('started');
-  }).done(function(data) {
-    console.log(data);
+module.getFileContent = function(fileLocation) {
+  var file =  $.get(fileLocation + AUTH)
+
+  file.then(function(data) {
+    $('.code').append("<div class='" + data.name + "'>" + data.name + "</div>");
   });
 
+  file.then(function(data) {
+  })
 }
 
-var filePathNames = function(repoLocation, jsFiles){
+module.filePathNames = function(repoLocation, jsFiles){
   var arr = [];
   for (var i = 0; i < jsFiles.length; i++) {
     var rawURL = API_BASE + repoLocation + '/contents/' + jsFiles[i].path;
@@ -50,23 +118,13 @@ var filePathNames = function(repoLocation, jsFiles){
   return arr;
 };
 
-var getAllCommits= function(repoLocation) {
-  return API_BASE + repoLocation + '/commits';
+module.getAllCommits= function(repoLocation) {
+  return API_BASE + repoLocation + '/commits' + AUTH;
 }
 
-var checkForJSFileType = function(path) {
+module.checkForJSFileType = function(path) {
   var pathArray = path.split('.');
   var fileType = pathArray[pathArray.length - 1]
   return fileType == 'js';
 }
 
-
-//var a = $.getJSON("https://api.github.com/repos/afeld/advanced_js/contents/vendor/recipes.js",
-//    { Origin: 'http://localhost:3000/',
-//      user: 'will-sommers' }
-//);
-
-//a.then( function(data) { console.log(data.content) } );
-
-
-recursiveTreeLookup('afeld/advanced_js');

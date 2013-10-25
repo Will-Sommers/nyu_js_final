@@ -16,7 +16,7 @@
 //= require underscore
 //= require backbone
 //= require env_variables
-//= require script2
 //= require qunit-1.12.0
 //= require tests
-//= require tree .
+//= require_directory .
+//= require script2
