@@ -12,9 +12,11 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require jquery.base64
 //= require underscore
 //= require backbone
 //= require env_variables
 //= require script2
 //= require qunit-1.12.0
 //= require tests
+//= require tree .
