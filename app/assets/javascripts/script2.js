@@ -6,10 +6,27 @@ var AUTH = "?access_token=" + API_TOKEN;
 var app = app || {};
 
 
+(function() {
+  'use strict'
+
+  app.JsFile = Backbone.Model.extend({
+
+  });
+})();
+
+(function() {
+  'use strict'
+
+  var JsFiles = Backbone.Collection.extend({
+    model: app.JsFile
+  });
+
+  app.JsFiles = new JsFiles();
+})();
+
 (function($) {
 
   "use strict"
-
 
   app.AppView = Backbone.View.extend({
 
@@ -37,26 +54,6 @@ var app = app || {};
   });
 
 })(jQuery);
-
-(function() {
-  'use strict'
-
-  app.JsFile = Backbone.Model.extend({
-
-  });
-});
-
-(function() {
-  'use strict'
-
-  var JsFiles = Backbone.Collection.extend({
-
-    model: app.JsFile
-  });
-
-  app.jsFiles = new JsFiles();
-})();
-
 
 $(function () {
 
@@ -106,6 +103,13 @@ module.getFileContent = function(fileLocation) {
   });
 
   file.then(function(data) {
+    content = $.base64.decode(data.content)
+    file = new app.JsFile({
+      name:   data.name,
+      sha:    data.sha,
+      content: data.content
+    });
+    app.JsFiles.add(data)
   })
 }
 
