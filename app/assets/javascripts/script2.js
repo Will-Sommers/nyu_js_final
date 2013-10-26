@@ -6,6 +6,13 @@ var AUTH = "?access_token=" + API_TOKEN;
 var app = app || {};
 
 
+var a = $.getJSON("http://www.brooklynmuseum.org/opencollection/api/?method=collection.search&format=json&version=1&api_key=EWOW6S84A0&keyword=eames");
+
+a.then(function(data) {
+  alert('tes')
+  console.log(data)
+});
+
 (function() {
   'use strict'
 
@@ -24,13 +31,61 @@ var app = app || {};
   app.JsFiles = new JsFiles();
 })();
 
+(function() {
+
+  'use strict'
+
+  app.BlockView = Backbone.View.extend({
+
+    className: 'circle',
+
+    render: function(color) {
+      var that = this;
+      var timeout = Math.floor(Math.random() * 44000);
+      $(this.el).addClass(color)
+      var randomInt = Math.floor(Math.random * 800) + 1
+      $(this.el).css('left', randomInt)
+
+      window.setTimeout(function() {
+        that.removeFromView(); }, timeout)
+      window.setInterval(function() {
+        var top = $(that.el).css('top')
+        var top = parseInt(top, 10) + Math.floor(Math.random() * 20);
+
+        var left = $(that.el).css('left');
+        var randomInt = Math.floor(Math.random() * 100) + 1;
+
+        if (randomInt < 60) {
+          left = parseInt(left, 10) + Math.floor(Math.random() * 20);
+        } else if (randomInt > 80) {
+          left = parseInt(left, 10) * Math.floor(Math.random() * 20);
+        } else {
+          left = parseInt(left, 10) - Math.floor(Math.random() * 20);
+        }
+        if(left < -200 || left > 1000) {
+          that.removeFromView()
+        }
+
+        $(that.el).css({ 'top': top,
+                         'left' : left
+        });
+      }, 100)
+
+      return this;
+    },
+    removeFromView: function() {
+      this.remove();
+    }
+  });
+})();
+
 (function($) {
   app.JsFileView = Backbone.View.extend({
 
     tagName: 'li',
 
     events: {
-      'click div' : "fireBlocks"
+      'click div' : "fireBlocks",
     },
 
     render: function() {
@@ -44,7 +99,26 @@ var app = app || {};
       var jQueries = content.match(/jQuery/);
       var all_caps = content.match(/\b([A-Z]{2,})\b/g);
 
-    }
+      _.each(vars, function() {
+        var blockView = new app.BlockView();
+        $('.right-col').append(blockView.render('red').el);
+      });
+
+      _.each(functions, function() {
+        var blockView = new app.BlockView();
+        $('.right-col').append(blockView.render('grey').el);
+      });
+
+      _.each(all_caps, function() {
+        var blockView = new app.BlockView();
+        $('.right-col').append(blockView.render('slate').el);
+      });
+      _.each(jQueries, function() {
+        var blockView = new app.BlockView();
+        $('.right-col').append(blockView.render('orange').el);
+      });
+    },
+
   });
 })(jQuery);
 
@@ -57,12 +131,14 @@ var app = app || {};
     el: '.main',
 
     events: {
-      "keypress .repo-name" : "findRepo"
+      "keypress .repo-name" : "findRepo",
+      "click .play" : "fireAllBlocks"
     },
 
 
     initialize: function() {
       this.listenTo(app.JsFiles, 'add', this.addOne);
+      this.children = [];
     },
 
 
@@ -71,15 +147,23 @@ var app = app || {};
         model: file,
         collection: app.JsFiles
         });
+      this.children.push(JsFileView);
       JsFileView.render();
-      this.$el.append(JsFileView.el);
+      this.$el.find('.names').append(JsFileView.el);
     },
 
     findRepo: function(e) {
       if (e.which === 13) {
+        $('.names').empty()
         var repoName = ($('.repo-name').val())
         module.recursiveTreeLookup(repoName);
       }
+    },
+
+    fireAllBlocks: function (){
+      _.each(this.children, function(view) {
+        view.fireBlocks()
+      } );
     }
   });
 
@@ -119,7 +203,7 @@ module.recursiveTreeLookup = function(repoLocation) {
     }
     var fileNames = module.filePathNames(repoLocation, arr)
 
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < fileNames.length; i++) {
       module.getFileContent(fileNames[i]);
     }
   });

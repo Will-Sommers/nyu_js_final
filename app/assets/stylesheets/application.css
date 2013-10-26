@@ -16,7 +16,34 @@
 .right-col {
   width: 800px;
   height: 400px;
-  position: absolute;
+  position: fixed;
   right: 50px;
   border: 2px solid #ccc;
+  overflow: hidden;
+}
+
+
+.circle {
+  position:absolute;
+  top: 0px;
+  left: 400px;
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+}
+
+.red {
+  background-color: #D12B2A;
+}
+
+.grey {
+  background-color: grey;
+}
+
+.slate {
+  background-color: #87D1DD;
+}
+
+.orange {
+  background-color: #FF8000;
 }
