@@ -25,6 +25,30 @@ var app = app || {};
 })();
 
 (function($) {
+  app.JsFileView = Backbone.View.extend({
+
+    tagName: 'li',
+
+    events: {
+      'click div' : "fireBlocks"
+    },
+
+    render: function() {
+      this.$el.html("<div>" + this.model.get('name') + "</div>");
+    },
+
+    fireBlocks: function() {
+      var content = this.model.get('content')
+      var functions = content.match(/content/g);
+      var vars = content.match(/var/g);
+      var jQueries = content.match(/jQuery/);
+      var all_caps = content.match(/\b([A-Z]{2,})\b/g);
+
+    }
+  });
+})(jQuery);
+
+(function($) {
 
   "use strict"
 
@@ -38,11 +62,17 @@ var app = app || {};
 
 
     initialize: function() {
-
+      this.listenTo(app.JsFiles, 'add', this.addOne);
     },
 
-    render: function() {
 
+    addOne: function(file) {
+      var JsFileView = new app.JsFileView({
+        model: file,
+        collection: app.JsFiles
+        });
+      JsFileView.render();
+      this.$el.append(JsFileView.el);
     },
 
     findRepo: function(e) {
@@ -89,7 +119,7 @@ module.recursiveTreeLookup = function(repoLocation) {
     }
     var fileNames = module.filePathNames(repoLocation, arr)
 
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < 5; i++) {
       module.getFileContent(fileNames[i]);
     }
   });
@@ -99,17 +129,12 @@ module.getFileContent = function(fileLocation) {
   var file =  $.get(fileLocation + AUTH)
 
   file.then(function(data) {
-    $('.code').append("<div class='" + data.name + "'>" + data.name + "</div>");
-  });
-
-  file.then(function(data) {
-    content = $.base64.decode(data.content)
     file = new app.JsFile({
       name:   data.name,
       sha:    data.sha,
-      content: data.content
+      content: $.base64.decode(data.content)
     });
-    app.JsFiles.add(data)
+    app.JsFiles.add(file)
   })
 }
 
