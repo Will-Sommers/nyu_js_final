@@ -5,14 +5,6 @@ var AUTH = "?access_token=" + API_TOKEN;
 
 var app = app || {};
 
-
-var a = $.getJSON("http://www.brooklynmuseum.org/opencollection/api/?method=collection.search&format=json&version=1&api_key=EWOW6S84A0&keyword=eames");
-
-a.then(function(data) {
-  alert('tes')
-  console.log(data)
-});
-
 (function() {
   'use strict'
 
